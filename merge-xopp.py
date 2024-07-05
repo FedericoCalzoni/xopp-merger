@@ -95,14 +95,14 @@ def append_content(tmp_folder, output_file, merged_pdf_path): # TODO: Verify wha
                 out_f.write(f"<page{modified_page_content}</page>\n")
                 print(f"Appended the page content of {file} to {output_file}")
 
-def finalize_output(output_file):
+def finalize_output(output_file, output_folder):
     with open(output_file, 'a') as out_f:
         out_f.write('</xournal>')
 
     with open(output_file, 'rb') as f_in:
         with gzip.open(f"{output_file}.gz", 'wb') as f_out:
             shutil.copyfileobj(f_in, f_out)
-    shutil.move(f"{output_file}.gz", "output/merged_output.xopp")
+    shutil.move(f"{output_file}.gz", os.path.join(output_folder, "merged_output.xopp"))
     print("Generated merged_output.xopp")
     
     # Remove the merged_output.xml file
@@ -133,7 +133,7 @@ def main():
     merge_pdf_backgrounds(pdf_files, merged_pdf_path)
     add_common_header(xopp_files, tmp_folder, output_file)
     append_content(tmp_folder, output_file, merged_pdf_path)
-    finalize_output(output_file)
+    finalize_output(output_file, output_folder)
     cleanup(tmp_folder) # TODO delete the temporary folder after debugging
     print("Done")
 
