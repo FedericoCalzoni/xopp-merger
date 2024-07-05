@@ -72,7 +72,7 @@ def add_common_header(xopp_files, tmp_folder, output_file):
                     break
                 out_f.write(line)
 
-def append_content(tmp_folder, output_file, merged_pdf_path):
+def append_content(tmp_folder, output_file, merged_pdf_path): # TODO: Verify what happens if pages are deleted. Not handling that case currently.
     page_number = 2
     first_file = True
     for file in glob.glob(os.path.join(tmp_folder, "*.xml")):
@@ -115,9 +115,9 @@ def cleanup(tmp_folder):
     print(f"Removed {tmp_folder}")
 
 def main():
-    input_folder = os.path.join(os.getcwd(), "") # TODO: Change this to the folder containing the .xopp files
+    input_folder = os.path.join(os.getcwd(), "") # Folder containing the .xopp files
     tmp_folder = ".tmp-xopp-merger"
-    output_folder = os.path.join(os.getcwd(), "output") # TODO: Change this to the output folder
+    output_folder = os.path.join(os.getcwd(), "output-xopp-merger") # output folder
     os.makedirs(output_folder, exist_ok=True)
     output_file = os.path.join(output_folder, "merged_output.xml")
     merged_pdf_path = os.path.join(output_folder, "merged_background.pdf")
