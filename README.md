@@ -7,7 +7,7 @@
 ## Requirements
 
 - Python 3.x
-- Required Python packages: `glob`, `os`, `shutil`, `gzip`, `pikepdf`, `sys`
+- Required Python packages: `glob`, `os`, `shutil`, `gzip`, `pikepdf`, `sys`, `natsort`
 
 ## Usage
 

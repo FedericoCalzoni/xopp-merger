@@ -4,7 +4,7 @@ import shutil
 import gzip
 import pikepdf
 import sys
-import natsort
+from natsort import natsorted
 
 def check_xopp_files(input_folder):
     if not os.path.exists(input_folder):
@@ -16,7 +16,7 @@ def check_xopp_files(input_folder):
         print("No .xopp files found in the input folder.")
         return []
 
-    xopp_files = natsort.natsorted(xopp_files)  # Sort the files using natural sort
+    xopp_files = natsorted(xopp_files)  # Sort the files using natural sort
     return xopp_files
 
 def create_temp_folder(tmp_folder):
