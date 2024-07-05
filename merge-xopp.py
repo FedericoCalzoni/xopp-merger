@@ -4,6 +4,7 @@ import shutil
 import gzip
 import pikepdf
 import sys
+import natsort
 
 def check_xopp_files(input_folder):
     if not os.path.exists(input_folder):
@@ -15,7 +16,7 @@ def check_xopp_files(input_folder):
         print("No .xopp files found in the input folder.")
         return []
 
-    xopp_files.sort()  # Sort the files alphabetically
+    xopp_files = natsort.natsorted(xopp_files)  # Sort the files using natural sort
     return xopp_files
 
 def create_temp_folder(tmp_folder):
@@ -72,12 +73,14 @@ def add_common_header(xopp_files, tmp_folder, output_file):
                     break
                 out_f.write(line)
 
-def append_content(tmp_folder, output_file, merged_pdf_path): # TODO: Verify what happens if pages are deleted. Not handling that case currently.
-    page_number = 2
+def append_content(tmp_folder, output_file, merged_pdf_path):
+    previous_pages = 0
     first_file = True
-    for file in glob.glob(os.path.join(tmp_folder, "*.xml")):
+    for file in glob.glob(os.path.join(tmp_folder, "*.xml")):            
+        
         with open(file, 'r') as in_f:
             content = in_f.read()
+                  
             page_content = content.split('<page', 1)[1].rsplit('</page>', 1)[0]
             modified_page_content = []
             for line in page_content.splitlines():
@@ -86,14 +89,23 @@ def append_content(tmp_folder, output_file, merged_pdf_path): # TODO: Verify wha
                         line = f'<background type="pdf" domain="absolute" filename="{merged_pdf_path}" pageno="1"/>'
                         first_file = False
                     else:
+                        # extrapolate the pageno from the line, 
+                        # than increment it by the number of pages of previous PDF files
+                        extracted_pageno = line.split('pageno="', 1)[1].split('"', 1)[0]
+                        page_number = int(extracted_pageno) + previous_pages
                         line = f'<background type="pdf" pageno="{page_number}"/>'
-                        page_number += 1
                 modified_page_content.append(line)
             modified_page_content = "\n".join(modified_page_content)
             with open(output_file, 'a') as out_f:
                 out_f.write(f"<!-- content from {file} -->\n")
                 out_f.write(f"<page{modified_page_content}</page>\n")
-                print(f"Appended the page content of {file} to {output_file}")
+                print(f"Appended the page content of {file}")
+                
+            # Count the number of pages of the related PDF file (if any)
+            if 'background type="pdf"' in content:
+                pdf_filename = content.split('filename="', 1)[1].split('"', 1)[0]
+                with pikepdf.open(pdf_filename) as pdf:
+                    previous_pages += len(pdf.pages)
 
 def finalize_output(output_file, output_folder):
     with open(output_file, 'a') as out_f:
